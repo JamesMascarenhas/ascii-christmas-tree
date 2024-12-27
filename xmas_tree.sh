@@ -65,11 +65,11 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
 # star locations around the tree
 star_positions=(
-	"$((middle_y - 2)) 15"
-	"$((middle_y - 3)) 20"
-	"$((middle_y - 2)) 25"
-	"$((middle_y - 4)) 18"
-	"$((middle_y - 4)) 22"
+	"$((middle_y - 2)) $((COLS / 2 - 10))"
+	"$((middle_y - 3)) $((COLS / 2 - 15))"
+	"$((middle_y - 2)) $((COLS / 2 + 10))"
+	"$((middle_y - 4)) $((COLS / 2 - 5))"
+	"$((middle_y - 4)) $((COLS / 2 + 5))"
 )
 
 # current color index
@@ -92,7 +92,7 @@ while true; do
 		star_y=$(echo "$pos" | cut -d' ' -f1)
 		star_x=$(echo "$pos" | cut -d' ' -f2)
 
-		if ((RANDOM % 2)); then
+		if ((RANDOM % 2 == 0)); then
 			# Show a twinkling star
 			tput cup "$star_y" "$star_x"
 			echo -n "${color_twinkle}*"
@@ -106,12 +106,12 @@ while true; do
 	# display the text
 	y=$((middle_y + 7))
 	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" 35
+		tput cup "$y" $((COLS / 2 - 10))
 		echo "$line"
 		((y++))
 	done
 
 	# increment the lights and pause for the animation to play
 	((idx++))
-	sleep 1
+	sleep 0.5
 done
