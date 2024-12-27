@@ -8,7 +8,7 @@
 
 # colors
 color_tree=$(tput setaf 2)
-color_star=$(tput setaf 227)
+color_star=$(tput setaf 227)   # Golden star
 color_twinkle=$(tput setaf 15)  # Bright white for twinkling stars
 
 # lights - dave matched these to "vintaglo vintage christmas lights"
@@ -67,9 +67,23 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 generate_star_positions() {
     star_positions=()
     for _ in {1..100}; do  # Generate 100 stars
-        rand_y=$((RANDOM % LINES))  # Random Y position within terminal height
-        rand_x=$((RANDOM % COLS))   # Random X position within terminal width
-        star_positions+=("$rand_y $rand_x")
+        while true; do
+            rand_y=$((RANDOM % LINES))  # Random Y position within terminal height
+            rand_x=$((RANDOM % COLS))   # Random X position within terminal width
+
+            # Ensure the star does not overlap the tree or the message
+            if ((rand_y >= middle_y && rand_y <= middle_y + TREE_HEIGHT)) &&
+               ((rand_x >= COLS / 2 - 10 && rand_x <= COLS / 2 + 10)); then
+                continue
+            elif ((rand_y >= middle_y + 7 && rand_y <= middle_y + 10)) &&
+                 ((rand_x >= COLS / 2 - 10 && rand_x <= COLS / 2 + 30)); then
+                continue
+            fi
+
+            # Add star position if valid
+            star_positions+=("$rand_y $rand_x")
+            break
+        done
     done
 }
 
@@ -79,7 +93,7 @@ idx=0
 while true; do
 	# stylize and colorize tree
 	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }
+	t=${t// \*/ ${color_star}*${color_tree} }  # Golden star at the top
 	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
 	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
 	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
