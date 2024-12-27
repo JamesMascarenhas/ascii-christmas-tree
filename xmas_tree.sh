@@ -66,17 +66,20 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 # dynamically generate random star positions around the tree
 generate_star_positions() {
     star_positions=()
-    for _ in {1..100}; do  # Generate 100 stars
+    for _ in {1..150}; do  # Generate 150 stars
         while true; do
             rand_y=$((RANDOM % LINES))  # Random Y position within terminal height
             rand_x=$((RANDOM % COLS))   # Random X position within terminal width
 
-            # Ensure the star does not overlap the tree or the message
+            # Exclude the tree region
             if ((rand_y >= middle_y && rand_y <= middle_y + TREE_HEIGHT)) &&
                ((rand_x >= COLS / 2 - 10 && rand_x <= COLS / 2 + 10)); then
                 continue
-            elif ((rand_y >= middle_y + 7 && rand_y <= middle_y + 10)) &&
-                 ((rand_x >= COLS / 2 - 10 && rand_x <= COLS / 2 + 30)); then
+            fi
+
+            # Exclude the message region
+            if ((rand_y >= middle_y + TREE_HEIGHT && rand_y <= middle_y + TREE_HEIGHT + 3)) &&
+               ((rand_x >= COLS / 2 - 10 && rand_x <= COLS / 2 + 30)); then
                 continue
             fi
 
@@ -93,7 +96,7 @@ idx=0
 while true; do
 	# stylize and colorize tree
 	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }  # Golden star at the top
+	t=${t// \*/ ${color_star}*${color_tree} }  # Golden star at the top stays fixed
 	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
 	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
 	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
@@ -120,7 +123,7 @@ while true; do
 	done
 
 	# display the text
-	y=$((middle_y + 7))
+	y=$((middle_y + TREE_HEIGHT + 1))
 	for line in "${MESSAGE[@]}"; do
 		tput cup "$y" $((COLS / 2 - 10))
 		echo "$line"
