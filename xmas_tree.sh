@@ -50,7 +50,7 @@ MESSAGE=(
 )
 
 # Snowflake positions
-snowflakes=()
+declare -a snowflakes
 
 # configure terminal for drawing
 cleanup() {
@@ -68,9 +68,9 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
 # Initialize snowflakes
 generate_snowflakes() {
-	for _ in {1..10}; do  # Generate up to 10 snowflakes at a time
+	for _ in {1..10}; do
 		rand_x=$((RANDOM % COLS))
-		# Only generate snowflakes outside the tree and message
+		# Ensure snowflakes don't overwrite the tree or message
 		if ((rand_x < COLS / 2 - 10 || rand_x > COLS / 2 + 10)); then
 			snowflakes+=("0 $rand_x")  # Add a new snowflake at the top
 		fi
@@ -93,9 +93,9 @@ while true; do
 	echo "$t"
 
 	# display the text
-	y=$((middle_y + 7))
+	y=$((middle_y + TREE_HEIGHT + 1))
 	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" 35
+		tput cup "$y" $((COLS / 2 - 10))
 		echo "$line"
 		((y++))
 	done
