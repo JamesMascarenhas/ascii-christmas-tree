@@ -63,16 +63,18 @@ COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
-# star locations around the tree
-star_positions=(
-	"$((middle_y - 2)) $((COLS / 2 - 10))"
-	"$((middle_y - 3)) $((COLS / 2 - 15))"
-	"$((middle_y - 2)) $((COLS / 2 + 10))"
-	"$((middle_y - 4)) $((COLS / 2 - 5))"
-	"$((middle_y - 4)) $((COLS / 2 + 5))"
-)
+# dynamically generate random star positions around the tree
+generate_star_positions() {
+    star_positions=()
+    for _ in {1..20}; do  # Generate 20 stars
+        rand_y=$((RANDOM % LINES))  # Random Y position within terminal height
+        rand_x=$((RANDOM % COLS))   # Random X position within terminal width
+        star_positions+=("$rand_y $rand_x")
+    done
+}
 
 # current color index
+generate_star_positions
 idx=0
 while true; do
 	# stylize and colorize tree
@@ -84,7 +86,7 @@ while true; do
 	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
 
 	# display the tree
-	tput cup "$middle_y" 0
+	tput cup "$middle_y" $((COLS / 2 - 10))
 	echo "$t"
 
 	# display the twinkling stars
