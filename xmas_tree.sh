@@ -50,9 +50,9 @@ MESSAGE=(
 )
 
 # Snowflake positions
-declare -a snowflakes
+snowflakes=()
 
-# configure terminal for drawing
+# Configure terminal for drawing
 cleanup() {
 	tput rmcup
 	tput cnorm
@@ -61,52 +61,30 @@ trap cleanup EXIT
 tput smcup
 tput civis
 
-# figure out our size
+# Get terminal dimensions
 COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
-# Initialize snowflakes
+# Function to generate new snowflakes
 generate_snowflakes() {
-	for _ in {1..10}; do
+	for _ in {1..5}; do
 		rand_x=$((RANDOM % COLS))
 		# Ensure snowflakes don't overwrite the tree or message
 		if ((rand_x < COLS / 2 - 10 || rand_x > COLS / 2 + 10)); then
-			snowflakes+=("0 $rand_x")  # Add a new snowflake at the top
+			snowflakes+=("0 $rand_x")  # Add snowflake at the top
 		fi
 	done
 }
 
-# current color index
-idx=0
-while true; do
-	# stylize and colorize tree
-	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }
-	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
-	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
-	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
-	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
-
-	# display the tree
-	tput cup "$middle_y" 0
-	echo "$t"
-
-	# display the text
-	y=$((middle_y + TREE_HEIGHT + 1))
-	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" $((COLS / 2 - 10))
-		echo "$line"
-		((y++))
-	done
-
-	# Move and display snowflakes
-	new_snowflakes=()
+# Function to update and move snowflakes
+update_snowflakes() {
+	local new_snowflakes=()
 	for flake in "${snowflakes[@]}"; do
-		snow_y=${flake% *}
-		snow_x=${flake#* }
+		local snow_y=${flake% *}
+		local snow_x=${flake#* }
 		tput cup "$snow_y" "$snow_x"
-		echo -n " "  # Clear the old snowflake
+		echo -n " "  # Clear previous snowflake position
 		((snow_y++))
 		if ((snow_y < LINES)); then
 			tput cup "$snow_y" "$snow_x"
@@ -115,11 +93,40 @@ while true; do
 		fi
 	done
 	snowflakes=("${new_snowflakes[@]}")
+}
 
-	# Generate new snowflakes
-	generate_snowflakes
+# Main animation loop
+idx=0
+while true; do
+	# Stylize and colorize tree
+	t=$color_tree$TREE
+	t=${t// \*/ ${color_star}*${color_tree} }
+	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
+	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
+	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
+	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
 
-	# increment the lights and pause for the animation to play
+	# Display the tree
+	tput cup "$middle_y" $((COLS / 2 - 10))
+	echo "$t"
+
+	# Display the text
+	y=$((middle_y + TREE_HEIGHT + 1))
+	for line in "${MESSAGE[@]}"; do
+		tput cup "$y" $((COLS / 2 - 10))
+		echo "$line"
+		((y++))
+	done
+
+	# Update and display snowflakes
+	update_snowflakes
+
+	# Generate new snowflakes occasionally
+	if ((idx % 5 == 0)); then
+		generate_snowflakes
+	fi
+
+	# Increment the lights and pause for the animation to play
 	((idx++))
 	sleep 0.1
 done
