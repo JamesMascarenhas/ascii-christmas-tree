@@ -3,12 +3,14 @@
 # Create a christmas tree on the terminal
 #
 # Author: Dave Eddy <dave@daveeddy.com>
-# Modified by: James Mascarenhas
+# Date: December 24, 2024
 # License: MIT
 
 # colors
 color_tree=$(tput setaf 2)
-color_star=$(tput setaf 227)   # Golden star
+color_star=$(tput setaf 227)
+
+# lights - dave matched these to "vintaglo vintage christmas lights"
 color_lights=(
 	"$(tput setaf 111)"
 	"$(tput setaf 208)"
@@ -51,7 +53,7 @@ cleanup() {
 	tput rmcup
 	tput cnorm
 }
-trap cleanup EXIT
+trap cleanup exit
 tput smcup
 tput civis
 
@@ -65,26 +67,25 @@ idx=0
 while true; do
 	# stylize and colorize tree
 	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }  # Golden star at the top
+	t=${t// \*/ ${color_star}*${color_tree} }
 	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
 	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
 	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
 	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
 
 	# display the tree
-	tput cup "$middle_y" $((COLS / 2 - 10))
+	tput cup "$middle_y" 0
 	echo "$t"
 
 	# display the text
-	y=$((middle_y + TREE_HEIGHT + 1))
+	y=$((middle_y + 7))
 	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" $((COLS / 2 - 10))
+		tput cup "$y" 35
 		echo "$line"
 		((y++))
 	done
 
 	# increment the lights and pause for the animation to play
 	((idx++))
-
 	sleep 1
 done
