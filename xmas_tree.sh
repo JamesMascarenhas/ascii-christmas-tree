@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Create a christmas tree with twinkling stars on the terminal
+# Create a christmas tree with many twinkling stars on the terminal
 #
 # Author: Dave Eddy <dave@daveeddy.com>
 # Modified by: James Mascarenhas
@@ -66,7 +66,7 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 # dynamically generate random star positions around the tree
 generate_star_positions() {
     star_positions=()
-    for _ in {1..20}; do  # Generate 20 stars
+    for _ in {1..100}; do  # Generate 100 stars
         rand_y=$((RANDOM % LINES))  # Random Y position within terminal height
         rand_x=$((RANDOM % COLS))   # Random X position within terminal width
         star_positions+=("$rand_y $rand_x")
@@ -115,5 +115,11 @@ while true; do
 
 	# increment the lights and pause for the animation to play
 	((idx++))
-	sleep 0.5
+
+	# Regenerate star positions occasionally to vary the twinkling
+	if ((idx % 10 == 0)); then
+		generate_star_positions
+	fi
+
+	sleep 0.4
 done
