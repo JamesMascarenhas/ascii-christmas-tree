@@ -50,7 +50,7 @@ MESSAGE=(
 )
 
 # Snowflake positions
-declare -A snowflakes
+snowflakes=()
 
 # configure terminal for drawing
 cleanup() {
@@ -66,13 +66,13 @@ COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
-# Snow initialization
+# Initialize snowflakes
 generate_snowflakes() {
-	for _ in {1..10}; do  # Generate up to 10 snowflakes per frame
+	for _ in {1..10}; do  # Generate up to 10 snowflakes at a time
 		rand_x=$((RANDOM % COLS))
-		# Ensure snowflakes don't overwrite the tree or message
+		# Only generate snowflakes outside the tree and message
 		if ((rand_x < COLS / 2 - 10 || rand_x > COLS / 2 + 10)); then
-			snowflakes["0,$rand_x"]=1  # Add snowflake at the top
+			snowflakes+=("0 $rand_x")  # Add a new snowflake at the top
 		fi
 	done
 }
@@ -100,18 +100,18 @@ while true; do
 		((y++))
 	done
 
-	# Update snowflakes
-	declare -A new_snowflakes
-	for pos in "${!snowflakes[@]}"; do
-		snow_y=${pos%,*}
-		snow_x=${pos#*,}
+	# Move and display snowflakes
+	new_snowflakes=()
+	for flake in "${snowflakes[@]}"; do
+		snow_y=${flake% *}
+		snow_x=${flake#* }
 		tput cup "$snow_y" "$snow_x"
-		echo -n " "  # Clear current position
+		echo -n " "  # Clear the old snowflake
 		((snow_y++))
 		if ((snow_y < LINES)); then
 			tput cup "$snow_y" "$snow_x"
 			echo -n "*"
-			new_snowflakes["$snow_y,$snow_x"]=1
+			new_snowflakes+=("$snow_y $snow_x")
 		fi
 	done
 	snowflakes=("${new_snowflakes[@]}")
@@ -121,5 +121,5 @@ while true; do
 
 	# increment the lights and pause for the animation to play
 	((idx++))
-	sleep 0.2
+	sleep 0.1
 done
