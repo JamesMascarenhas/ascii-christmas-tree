@@ -3,7 +3,7 @@
 # Create a christmas tree on the terminal
 #
 # Author: Dave Eddy <dave@daveeddy.com>
-# Date: December 24, 2024
+# Modified by: James Mascarenhas
 # License: MIT
 
 # colors
@@ -48,16 +48,16 @@ MESSAGE=(
 	"${color_lights[1]}$ ${color_lights[0]}curl jamesmascarenhas.sh"
 )
 
-# configure terminal for drawing
+# Configure terminal for drawing
 cleanup() {
 	tput rmcup
 	tput cnorm
 }
-trap cleanup exit
+trap cleanup EXIT
 tput smcup
 tput civis
 
-# figure out our size
+# Get terminal dimensions
 COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
@@ -65,7 +65,7 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 # current color index
 idx=0
 while true; do
-	# stylize and colorize tree
+	# Stylize and colorize tree
 	t=$color_tree$TREE
 	t=${t// \*/ ${color_star}*${color_tree} }
 	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
@@ -73,11 +73,11 @@ while true; do
 	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
 	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
 
-	# display the tree
+	# Display the tree
 	tput cup "$middle_y" 0
 	echo "$t"
 
-	# display the text
+	# Display the text
 	y=$((middle_y + 7))
 	for line in "${MESSAGE[@]}"; do
 		tput cup "$y" 35
@@ -85,7 +85,7 @@ while true; do
 		((y++))
 	done
 
-	# increment the lights and pause for the animation to play
+	# Increment the lights and pause for the animation to play
 	((idx++))
 	sleep 1
 done
