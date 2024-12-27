@@ -1,5 +1,6 @@
 # Bash ascii-christmas-tree 🎄
 Creating a Christmas Tree using Dave Eddy's Tutorial
+![Screenshot of the Christmas Tree](ascii_christmas_tree.png)
 
 ## Usage  
 Run it right now with 'curl':
