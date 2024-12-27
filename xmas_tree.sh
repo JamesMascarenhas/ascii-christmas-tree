@@ -66,7 +66,30 @@ COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
-# Function to generate new snowflakes
+# Draw the static tree and message
+draw_static() {
+	# Stylize and colorize tree
+	t=$color_tree$TREE
+	t=${t// \*/ ${color_star}*${color_tree} }  # Keep the golden star at the top
+	t=${t// 0 / ${color_lights[0]}o${color_tree} }
+	t=${t// 1 / ${color_lights[1]}o${color_tree} }
+	t=${t// 2 / ${color_lights[2]}o${color_tree} }
+	t=${t// 3 / ${color_lights[3]}o${color_tree} }
+
+	# Display the tree
+	tput cup "$middle_y" $((COLS / 2 - 10))
+	echo "$t"
+
+	# Display the message
+	y=$((middle_y + TREE_HEIGHT + 1))
+	for line in "${MESSAGE[@]}"; do
+		tput cup "$y" $((COLS / 2 - 10))
+		echo "$line"
+		((y++))
+	done
+}
+
+# Generate new snowflakes
 generate_snowflakes() {
 	for _ in {1..5}; do
 		rand_x=$((RANDOM % COLS))
@@ -77,7 +100,7 @@ generate_snowflakes() {
 	done
 }
 
-# Function to update and move snowflakes
+# Update and move snowflakes
 update_snowflakes() {
 	local new_snowflakes=()
 	for flake in "${snowflakes[@]}"; do
@@ -95,38 +118,19 @@ update_snowflakes() {
 	snowflakes=("${new_snowflakes[@]}")
 }
 
+# Draw the static tree and message once
+draw_static
+
 # Main animation loop
-idx=0
 while true; do
-	# Stylize and colorize tree
-	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }
-	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
-	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
-	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
-	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
-
-	# Display the tree
-	tput cup "$middle_y" $((COLS / 2 - 10))
-	echo "$t"
-
-	# Display the text
-	y=$((middle_y + TREE_HEIGHT + 1))
-	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" $((COLS / 2 - 10))
-		echo "$line"
-		((y++))
-	done
-
 	# Update and display snowflakes
 	update_snowflakes
 
 	# Generate new snowflakes occasionally
-	if ((idx % 5 == 0)); then
+	if ((RANDOM % 5 == 0)); then
 		generate_snowflakes
 	fi
 
-	# Increment the lights and pause for the animation to play
-	((idx++))
+	# Pause for the next frame
 	sleep 0.1
 done
