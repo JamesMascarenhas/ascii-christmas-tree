@@ -1,15 +1,16 @@
-
 #!/usr/bin/env bash
 #
-# Create a christmas tree on the terminal
+# Create a christmas tree with twinkling stars on the terminal
 #
 # Author: Dave Eddy <dave@daveeddy.com>
+# Modified by: James Mascarenhas
 # Date: December 24, 2024
 # License: MIT
 
 # colors
 color_tree=$(tput setaf 2)
 color_star=$(tput setaf 227)
+color_twinkle=$(tput setaf 15)  # Bright white for twinkling stars
 
 # lights - dave matched these to "vintaglo vintage christmas lights"
 color_lights=(
@@ -63,6 +64,15 @@ COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
+# star locations around the tree
+star_positions=(
+	"$((middle_y - 2)) 10"
+	"$((middle_y - 1)) 15"
+	"$((middle_y - 3)) 20"
+	"$((middle_y - 4)) 25"
+	"$((middle_y - 2)) 30"
+)
+
 # current color index
 idx=0
 while true; do
@@ -77,6 +87,19 @@ while true; do
 	# display the tree
 	tput cup "$middle_y" 0
 	echo "$t"
+
+	# display the twinkling stars
+	for pos in "${star_positions[@]}"; do
+		if ((RANDOM % 2)); then
+			# Show a twinkling star
+			tput cup ${pos}
+			echo -n "${color_twinkle}*"
+		else
+			# Clear the position
+			tput cup ${pos}
+			echo -n " "
+		fi
+	done
 
 	# display the text
 	y=$((middle_y + 7))
