@@ -43,7 +43,7 @@ EOF
 TREE_HEIGHT=18
 
 MESSAGE=(
-	"${color_lights[3]}Merry Christmas!"
+	"${color_lights[3]}Merry Christmas Noodles!"
 	"${color_lights[3]}From James"
 	"${color_lights[1]}$ ${color_lights[0]}curl jamesmascarenhas.sh"
 )
