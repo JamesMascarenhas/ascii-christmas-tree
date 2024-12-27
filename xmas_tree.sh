@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 #
-# Create a christmas tree on the terminal with falling snow
+# Create a christmas tree on the terminal
 #
 # Author: Dave Eddy <dave@daveeddy.com>
-# Modified by: James Mascarenhas
 # Date: December 24, 2024
 # License: MIT
 
@@ -49,88 +48,44 @@ MESSAGE=(
 	"${color_lights[1]}$ ${color_lights[0]}curl jamesmascarenhas.sh"
 )
 
-# Snowflake positions
-snowflakes=()
-
-# Configure terminal for drawing
+# configure terminal for drawing
 cleanup() {
 	tput rmcup
 	tput cnorm
 }
-trap cleanup EXIT
+trap cleanup exit
 tput smcup
 tput civis
 
-# Get terminal dimensions
+# figure out our size
 COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
-# Draw the static tree and message
-draw_static() {
-	# Stylize and colorize tree
+# current color index
+idx=0
+while true; do
+	# stylize and colorize tree
 	t=$color_tree$TREE
-	t=${t// \*/ ${color_star}*${color_tree} }  # Keep the golden star at the top
-	t=${t// 0 / ${color_lights[0]}o${color_tree} }
-	t=${t// 1 / ${color_lights[1]}o${color_tree} }
-	t=${t// 2 / ${color_lights[2]}o${color_tree} }
-	t=${t// 3 / ${color_lights[3]}o${color_tree} }
+	t=${t// \*/ ${color_star}*${color_tree} }
+	t=${t// 0 / ${color_lights[idx % len]}o${color_tree} }
+	t=${t// 1 / ${color_lights[(idx + 1) % len]}o${color_tree} }
+	t=${t// 2 / ${color_lights[(idx + 2) % len]}o${color_tree} }
+	t=${t// 3 / ${color_lights[(idx + 3) % len]}o${color_tree} }
 
-	# Display the tree
-	tput cup "$middle_y" $((COLS / 2 - 10))
+	# display the tree
+	tput cup "$middle_y" 0
 	echo "$t"
 
-	# Display the message
-	y=$((middle_y + TREE_HEIGHT + 1))
+	# display the text
+	y=$((middle_y + 7))
 	for line in "${MESSAGE[@]}"; do
-		tput cup "$y" $((COLS / 2 - 10))
+		tput cup "$y" 35
 		echo "$line"
 		((y++))
 	done
-}
 
-# Generate new snowflakes
-generate_snowflakes() {
-	for _ in {1..5}; do
-		rand_x=$((RANDOM % COLS))
-		# Ensure snowflakes don't overwrite the tree or message
-		if ((rand_x < COLS / 2 - 10 || rand_x > COLS / 2 + 10)); then
-			snowflakes+=("0 $rand_x")  # Add snowflake at the top
-		fi
-	done
-}
-
-# Update and move snowflakes
-update_snowflakes() {
-	local new_snowflakes=()
-	for flake in "${snowflakes[@]}"; do
-		local snow_y=${flake% *}
-		local snow_x=${flake#* }
-		tput cup "$snow_y" "$snow_x"
-		echo -n " "  # Clear previous snowflake position
-		((snow_y++))
-		if ((snow_y < LINES)); then
-			tput cup "$snow_y" "$snow_x"
-			echo -n "*"
-			new_snowflakes+=("$snow_y $snow_x")
-		fi
-	done
-	snowflakes=("${new_snowflakes[@]}")
-}
-
-# Draw the static tree and message once
-draw_static
-
-# Main animation loop
-while true; do
-	# Update and display snowflakes
-	update_snowflakes
-
-	# Generate new snowflakes occasionally
-	if ((RANDOM % 5 == 0)); then
-		generate_snowflakes
-	fi
-
-	# Pause for the next frame
-	sleep 0.1
+	# increment the lights and pause for the animation to play
+	((idx++))
+	sleep 1
 done
