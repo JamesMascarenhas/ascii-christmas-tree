@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
-# Create a christmas tree on the terminal
+# Create a christmas tree on the terminal with falling snow
 #
 # Author: Dave Eddy <dave@daveeddy.com>
+# Modified by: James Mascarenhas
 # Date: December 24, 2024
 # License: MIT
 
@@ -48,12 +49,15 @@ MESSAGE=(
 	"${color_lights[1]}$ ${color_lights[0]}curl jamesmascarenhas.sh"
 )
 
+# Snowflake positions
+declare -A snowflakes
+
 # configure terminal for drawing
 cleanup() {
 	tput rmcup
 	tput cnorm
 }
-trap cleanup exit
+trap cleanup EXIT
 tput smcup
 tput civis
 
@@ -61,6 +65,17 @@ tput civis
 COLS=$(tput cols)
 LINES=$(tput lines)
 middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
+
+# Snow initialization
+generate_snowflakes() {
+	for _ in {1..10}; do  # Generate up to 10 snowflakes per frame
+		rand_x=$((RANDOM % COLS))
+		# Ensure snowflakes don't overwrite the tree or message
+		if ((rand_x < COLS / 2 - 10 || rand_x > COLS / 2 + 10)); then
+			snowflakes["0,$rand_x"]=1  # Add snowflake at the top
+		fi
+	done
+}
 
 # current color index
 idx=0
@@ -85,7 +100,26 @@ while true; do
 		((y++))
 	done
 
+	# Update snowflakes
+	declare -A new_snowflakes
+	for pos in "${!snowflakes[@]}"; do
+		snow_y=${pos%,*}
+		snow_x=${pos#*,}
+		tput cup "$snow_y" "$snow_x"
+		echo -n " "  # Clear current position
+		((snow_y++))
+		if ((snow_y < LINES)); then
+			tput cup "$snow_y" "$snow_x"
+			echo -n "*"
+			new_snowflakes["$snow_y,$snow_x"]=1
+		fi
+	done
+	snowflakes=("${new_snowflakes[@]}")
+
+	# Generate new snowflakes
+	generate_snowflakes
+
 	# increment the lights and pause for the animation to play
 	((idx++))
-	sleep 1
+	sleep 0.2
 done
