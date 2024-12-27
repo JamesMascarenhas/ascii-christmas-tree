@@ -4,7 +4,6 @@
 #
 # Author: Dave Eddy <dave@daveeddy.com>
 # Modified by: James Mascarenhas
-# Date: December 24, 2024
 # License: MIT
 
 # colors
@@ -55,7 +54,7 @@ cleanup() {
 	tput rmcup
 	tput cnorm
 }
-trap cleanup exit
+trap cleanup EXIT
 tput smcup
 tput civis
 
@@ -66,11 +65,11 @@ middle_y=$((LINES / 2 - (TREE_HEIGHT / 2)))
 
 # star locations around the tree
 star_positions=(
-	"$((middle_y - 2)) 10"
-	"$((middle_y - 1)) 15"
+	"$((middle_y - 2)) 15"
 	"$((middle_y - 3)) 20"
-	"$((middle_y - 4)) 25"
-	"$((middle_y - 2)) 30"
+	"$((middle_y - 2)) 25"
+	"$((middle_y - 4)) 18"
+	"$((middle_y - 4)) 22"
 )
 
 # current color index
@@ -90,13 +89,16 @@ while true; do
 
 	# display the twinkling stars
 	for pos in "${star_positions[@]}"; do
+		star_y=$(echo "$pos" | cut -d' ' -f1)
+		star_x=$(echo "$pos" | cut -d' ' -f2)
+
 		if ((RANDOM % 2)); then
 			# Show a twinkling star
-			tput cup ${pos}
+			tput cup "$star_y" "$star_x"
 			echo -n "${color_twinkle}*"
 		else
 			# Clear the position
-			tput cup ${pos}
+			tput cup "$star_y" "$star_x"
 			echo -n " "
 		fi
 	done
