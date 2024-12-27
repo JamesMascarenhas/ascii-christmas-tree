@@ -9,3 +9,6 @@ curl https://raw.githubusercontent.com/JamesMascarenhas/ascii-christmas-tree/mai
 Not yet hosted online, but can be used directly from the raw file URL
 ## Example
 See how this program was written: https://www.youtube.com/watch?v=NENq-G2PsTo
+
+## License
+MIT License
